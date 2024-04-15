@@ -15,19 +15,30 @@
 // "A+" to show that your changes allow alphabetical grades.
 //
 // Execute `rustlings hint quiz3` or use the `hint` watch subcommand for a hint.
+ 
+use std::fmt::Display;
 
-// I AM NOT DONE
-
-pub struct ReportCard {
-    pub grade: f32,
+pub struct ReportCard<T:Display> {
+    pub grade: T,
     pub student_name: String,
     pub student_age: u8,
 }
 
-impl ReportCard {
+impl<T:Display> ReportCard<T> {
     pub fn print(&self) -> String {
         format!("{} ({}) - achieved a grade of {}",
             &self.student_name, &self.student_age, &self.grade)
+    }
+    
+}
+
+impl ReportCard<f32> {
+    pub fn change_to_alpha_grade(self) -> ReportCard<String>{
+        ReportCard {
+            grade: "A+".to_string(),
+            student_name: self.student_name,
+            student_age: self.student_age,
+        }
     }
 }
 
@@ -56,6 +67,7 @@ mod tests {
             student_name: "Gary Plotter".to_string(),
             student_age: 11,
         };
+        let report_card = report_card.change_to_alpha_grade();
         assert_eq!(
             report_card.print(),
             "Gary Plotter (11) - achieved a grade of A+"
