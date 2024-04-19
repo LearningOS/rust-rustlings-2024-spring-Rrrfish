@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -35,6 +34,66 @@ impl<T> Default for LinkedList<T> {
     }
 }
 
+use std::mem::take;
+
+impl<T: std::cmp::PartialOrd> LinkedList<T> {
+    pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	{
+		let len = list_a.length + list_b.length;
+        let mut node_a: Option<NonNull<Node<T>>> = list_a.start;
+        let mut node_b: Option<NonNull<Node<T>>> = list_b.start;
+        
+        if node_b == None { node_a = node_b;}
+
+        let mut p: Option<NonNull<Node<T>>> = 
+        unsafe {
+            if (*node_a.unwrap().as_ptr()).val < (*node_b.unwrap().as_ptr()).val {
+                let ret = take(&mut node_a);
+                node_a = (*ret.unwrap().as_ptr()).next;
+                ret
+            } else {
+                let ret = take(&mut node_b);
+                node_b = (*ret.unwrap().as_ptr()).next;
+                ret
+            }
+        };
+
+        assert_ne!(node_b, None);
+        assert_ne!(node_a, None);
+            
+        let start = p; //NonNull实现了Copy Trait
+        unsafe {
+            while node_a != None && node_b != None {
+                if (*node_a.expect("it should be not none").as_ptr()).val < (*node_b.expect("it should be not none").as_ptr()).val { 
+                    (*p.expect("it should be not none").as_ptr()).next = node_a;
+                    p = node_a;
+                    node_a = (*node_a.expect("it should be not none").as_ptr()).next;
+
+                } else { 
+                    (*p.expect("it should be not none").as_ptr()).next = node_b;
+                    p = node_b;
+                    node_b = (*node_b.expect("it should be not none").as_ptr()).next;
+                };
+            }
+        }
+
+        if node_a == None {
+            unsafe{ (*p.unwrap().as_ptr()).next = node_b };
+            p = list_b.end;
+        }
+        if node_b == None {
+            unsafe{ (*p.unwrap().as_ptr()).next = node_a };
+            p = list_a.end;
+        }
+
+        Self {
+            length: len,
+            start,
+            end: p,
+        }
+        
+	}
+}
 impl<T> LinkedList<T> {
     pub fn new() -> Self {
         Self {
@@ -69,15 +128,7 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
-        }
-	}
+	
 }
 
 impl<T> Display for LinkedList<T>
