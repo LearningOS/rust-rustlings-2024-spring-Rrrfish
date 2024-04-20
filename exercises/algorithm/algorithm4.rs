@@ -3,11 +3,10 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
-
+#[derive(PartialEq)]
 #[derive(Debug)]
 struct TreeNode<T>
 where
@@ -51,12 +50,31 @@ where
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
         //TODO
+        let mut p = &mut self.root;
+        while *p != None {
+            match value.cmp(& (*(p).as_ref().unwrap()).value) {
+                Ordering::Less => p = &mut (*p.as_mut().unwrap()).left,
+                Ordering::Greater => p = &mut (*p.as_mut().unwrap()).right,
+                Ordering::Equal => return,
+            }
+        }
+
+        *p = Some(Box::new(TreeNode::new(value)));
+        
     }
 
     // Search for a value in the BST
-    fn search(&self, value: T) -> bool {
-        //TODO
-        true
+    fn search(&mut self, value: T) -> bool {
+        let mut p = &mut self.root;
+        while *p != None {
+            match value.cmp(& (*(p).as_ref().unwrap()).value) {
+                Ordering::Less => p = &mut (*p.as_mut().unwrap()).left,
+                Ordering::Greater => p = &mut (*p.as_mut().unwrap()).right,
+                Ordering::Equal => return true,
+            }
+        }
+
+        false
     }
 }
 
